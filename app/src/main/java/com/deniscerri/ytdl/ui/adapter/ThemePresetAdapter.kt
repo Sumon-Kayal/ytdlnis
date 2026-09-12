@@ -46,6 +46,10 @@ class ThemePresetAdapter(
 
     override fun getItemCount() = ThemeUtil.availableThemePresets.size
 
+    /**
+     * Binds a preset preview and handles selection according to [mode]. Apply mode persists and
+     * applies the preset when a host is available, while choose mode only passes it to [onChosen].
+     */
     override fun onBindViewHolder(holder: ThemePresetViewHolder, position: Int) {
         val preset = ThemeUtil.availableThemePresets[position]
         val context = holder.binding.root.context
@@ -76,6 +80,7 @@ class ThemePresetAdapter(
     }
 }
 
+/** Resolves a color-valued theme attribute from this context. */
 private fun Context.colorFromAttr(attr: Int): Int {
     val value = TypedValue()
     theme.resolveAttribute(attr, value, true)

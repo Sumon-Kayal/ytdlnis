@@ -163,49 +163,64 @@ object ThemeUtil {
         ThemePreset.FDroidDark,
     )
 
+    /** Returns whether preset-based theming is enabled in the default preferences. */
     fun isThemePresetsEnabled(context: Context): Boolean =
         PreferenceManager.getDefaultSharedPreferences(context).getBoolean("use_theme_presets", false)
 
+    /**
+     * Returns the stored preset selection mode, independently of whether preset theming is enabled.
+     */
     fun getThemePresetMode(context: Context): ThemePresetMode {
         val auto = PreferenceManager.getDefaultSharedPreferences(context)
             .getBoolean("theme_preset_auto_mode", false)
         return if (auto) ThemePresetMode.AUTO_LIGHT_DARK else ThemePresetMode.CONCRETE
     }
 
+    /** Persists whether preset selection uses separate light and dark slots. */
     fun setThemePresetAutoMode(context: Context, auto: Boolean) {
         PreferenceManager.getDefaultSharedPreferences(context).edit { putBoolean("theme_preset_auto_mode", auto) }
     }
 
+    /** Returns the preset matching [value], or [fallback] when the value is absent or unknown. */
     private fun findPreset(value: String?, fallback: ThemePreset): ThemePreset =
         availableThemePresets.firstOrNull { it.value == value } ?: fallback
 
+    /** Returns the stored fixed preset, falling back to [ThemePreset.Classic]. */
     fun getConcreteThemePreset(context: Context): ThemePreset = findPreset(
         PreferenceManager.getDefaultSharedPreferences(context).getString("theme_preset_concrete_id", null),
         ThemePreset.Classic
     )
 
+    /** Persists [preset] as the fixed preset selection. */
     fun setConcreteThemePreset(context: Context, preset: ThemePreset) {
         PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_concrete_id", preset.value) }
     }
 
+    /** Returns the stored light-mode preset, falling back to [ThemePreset.Classic]. */
     fun getLightThemePreset(context: Context): ThemePreset = findPreset(
         PreferenceManager.getDefaultSharedPreferences(context).getString("theme_preset_light_id", null),
         ThemePreset.Classic
     )
 
+    /** Persists [preset] as the light-mode selection. */
     fun setLightThemePreset(context: Context, preset: ThemePreset) {
         PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_light_id", preset.value) }
     }
 
+    /** Returns the stored dark-mode preset, falling back to [ThemePreset.Dark]. */
     fun getDarkThemePreset(context: Context): ThemePreset = findPreset(
         PreferenceManager.getDefaultSharedPreferences(context).getString("theme_preset_dark_id", null),
         ThemePreset.Dark
     )
 
+    /** Persists [preset] as the dark-mode selection. */
     fun setDarkThemePreset(context: Context, preset: ThemePreset) {
         PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_dark_id", preset.value) }
     }
 
+    /**
+     * Applies the fixed preset or the light/dark slot selected for the activity's current UI mode.
+     */
     private fun applyThemePreset(activity: Activity) {
         val preset = when (getThemePresetMode(activity)) {
             ThemePresetMode.CONCRETE -> getConcreteThemePreset(activity)
@@ -234,6 +249,10 @@ object ThemeUtil {
         }
     }
 
+    /**
+     * Applies the configured preset or legacy theme settings to [activity], then synchronizes its
+     * launcher icon alias. Legacy theming also updates AppCompat's global night mode.
+     */
     fun updateTheme(activity: Activity) {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
 

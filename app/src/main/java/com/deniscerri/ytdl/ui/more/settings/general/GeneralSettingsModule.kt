@@ -52,6 +52,14 @@ import java.util.Locale
 import kotlin.collections.forEach
 
 object GeneralSettingsModule : SettingModule {
+    /**
+     * Configures the current state and interaction behavior of a general-settings preference
+     * according to its key.
+     *
+     * Binding may update the preference's summary or visibility, attach listeners, and observe
+     * active downloads. User interactions can persist settings, open system or app dialogs, and
+     * request host or theme refreshes.
+     */
     override fun bindLogic(
         pref: Preference,
         host: SettingHost

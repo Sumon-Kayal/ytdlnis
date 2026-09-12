@@ -41,6 +41,10 @@ class AccentAdapter(val host: SettingHost) : RecyclerView.Adapter<AccentAdapter.
 
     override fun getItemCount() = ThemeUtil.availableAccents.size
 
+    /**
+     * Binds an accent preview and makes selecting it persist the accent, reapply themes to the
+     * tracked activities, and refresh the settings host.
+     */
     override fun onBindViewHolder(holder: AccentViewHolder, position: Int) {
         val accent = ThemeUtil.availableAccents[position]
         val context = holder.binding.root.context
@@ -71,6 +75,7 @@ class AccentAdapter(val host: SettingHost) : RecyclerView.Adapter<AccentAdapter.
     }
 }
 
+/** Resolves a color-valued theme attribute from this context. */
 private fun Context.colorFromAttr(attr: Int): Int {
     val value = TypedValue()
     theme.resolveAttribute(attr, value, true)
