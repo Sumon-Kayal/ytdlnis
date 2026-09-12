@@ -2,6 +2,7 @@ name: "Test Debug Release"
 
 on:
   workflow_dispatch:
+  push:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -85,20 +86,39 @@ jobs:
 
       - name: Generate debug keystore
         run: |
-          keytool -genkeypair -v \
-            -keystore debug.keystore \
-            -storepass android \
-            -keypass android \
-            -alias androiddebugkey \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+          if [[ -f app/debug.keystore ]]; then
+            echo "Using the committed app/debug.keystore — signature stays the same across runs."
+          else
+            echo "::warning::app/debug.keystore not found in the repo — generating a temporary one for this run only. Commit the keystore this workflow uploads as a build artifact to app/debug.keystore so future test builds share one signature and can be installed as updates instead of reinstalls."
+            keytool -genkeypair -v \
+              -keystore app/debug.keystore \
+              -storepass android \
+              -keypass android \
+              -alias androiddebugkey \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
 
-      - name: Build debug APKs
+          # app/build.gradle only defines signingConfigs.debug when this
+          # file exists and is non-empty — without it, the keystore above
+          # is never actually referenced and the build silently falls
+          # back to Gradle's own implicit debug signing config instead.
+          cat > keystore.properties <<EOF
+          signingConfig.storeFile=debug.keystore
+          signingConfig.storePassword=android
+          signingConfig.keyAlias=androiddebugkey
+          signingConfig.keyPassword=android
+          EOF
+
+      - name: Create local.properties
+        run: touch local.properties
+
+      - name: Build foss debug APK
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --stacktrace --no-daemon
+          ./gradlew assembleFossDebug --stacktrace --no-daemon
 
       - name: Locate and rename APKs
         id: apk
@@ -113,10 +133,9 @@ jobs:
           shopt -s nullglob
 
           SHORT_SHA="${GITHUB_SHA::7}"
-          # Debug APKs are written per product flavor
-          # (app/build/outputs/apk/<flavor>/debug/*.apk), not directly
-          # under apk/debug/.
-          APK_PATHS=(app/build/outputs/apk/*/debug/*.apk)
+          # Scoped to the foss flavor only (assembleFossDebug above), so
+          # this looks directly in that flavor's debug output directory.
+          APK_PATHS=(app/build/outputs/apk/foss/debug/*.apk)
 
           if (( ${#APK_PATHS[@]} == 0 )); then
             echo "::error::No debug APKs were produced"
@@ -176,8 +195,9 @@ jobs:
       - name: Upload as workflow artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: YTDLnis-debug-v${{ steps.changelog.outputs.version }}-${{ steps.apk.outputs.short_sha }}
+          name: YTDLnis-debug-foss-v${{ steps.changelog.outputs.version }}-${{ steps.apk.outputs.short_sha }}
           path: |
             ${{ steps.apk.outputs.dir }}/*.apk
             debug-release-notes.md
+            app/debug.keystore
           retention-days: 14
