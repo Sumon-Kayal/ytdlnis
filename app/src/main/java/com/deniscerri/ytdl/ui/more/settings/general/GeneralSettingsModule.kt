@@ -373,13 +373,16 @@ object GeneralSettingsModule : SettingModule {
                         renderSlot(lightCard, lightName, stagedLight)
                         renderSlot(darkCard, darkName, stagedDark)
 
-                        fun openPicker(onPicked: (ThemeUtil.ThemePreset) -> Unit) {
+                        fun openPicker(
+                            presets: List<ThemeUtil.ThemePreset>,
+                            onPicked: (ThemeUtil.ThemePreset) -> Unit
+                        ) {
                             val bottomSheet = BottomSheetDialog(host.getHostContext())
                             bottomSheet.requestWindowFeature(Window.FEATURE_NO_TITLE)
                             bottomSheet.setContentView(R.layout.generic_list)
                             val recycler = bottomSheet.findViewById<RecyclerView>(R.id.download_recyclerview)!!
                             recycler.layoutManager = GridLayoutManager(context, 2)
-                            recycler.adapter = ThemePresetAdapter(null, ThemePresetAdapter.Mode.CHOOSE) { chosen ->
+                            recycler.adapter = ThemePresetAdapter(null, ThemePresetAdapter.Mode.CHOOSE, presets) { chosen ->
                                 onPicked(chosen)
                                 bottomSheet.dismiss()
                             }
@@ -387,10 +390,16 @@ object GeneralSettingsModule : SettingModule {
                         }
 
                         lightCard.setOnClickListener {
-                            openPicker { chosen -> stagedLight = chosen; renderSlot(lightCard, lightName, stagedLight) }
+                            openPicker(ThemeUtil.availableThemePresets.filter { !it.isDark }) { chosen ->
+                                stagedLight = chosen
+                                renderSlot(lightCard, lightName, stagedLight)
+                            }
                         }
                         darkCard.setOnClickListener {
-                            openPicker { chosen -> stagedDark = chosen; renderSlot(darkCard, darkName, stagedDark) }
+                            openPicker(ThemeUtil.availableThemePresets.filter { it.isDark }) { chosen ->
+                                stagedDark = chosen
+                                renderSlot(darkCard, darkName, stagedDark)
+                            }
                         }
 
                         MaterialAlertDialogBuilder(host.getHostContext())
