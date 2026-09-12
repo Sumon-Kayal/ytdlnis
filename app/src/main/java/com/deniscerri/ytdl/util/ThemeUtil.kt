@@ -181,9 +181,14 @@ object ThemeUtil {
         PreferenceManager.getDefaultSharedPreferences(context).edit { putBoolean("theme_preset_auto_mode", auto) }
     }
 
-    /** Returns the preset matching [value], or [fallback] when the value is absent or unknown. */
-    private fun findPreset(value: String?, fallback: ThemePreset): ThemePreset =
-        availableThemePresets.firstOrNull { it.value == value } ?: fallback
+    /** Returns the compatible preset matching [value], or [fallback] when none exists. */
+    private fun findPreset(
+        value: String?,
+        fallback: ThemePreset,
+        isDark: Boolean? = null
+    ): ThemePreset = availableThemePresets.firstOrNull {
+        it.value == value && (isDark == null || it.isDark == isDark)
+    } ?: fallback
 
     /** Returns the stored fixed preset, falling back to [ThemePreset.Classic]. */
     fun getConcreteThemePreset(context: Context): ThemePreset = findPreset(
@@ -199,22 +204,26 @@ object ThemeUtil {
     /** Returns the stored light-mode preset, falling back to [ThemePreset.Classic]. */
     fun getLightThemePreset(context: Context): ThemePreset = findPreset(
         PreferenceManager.getDefaultSharedPreferences(context).getString("theme_preset_light_id", null),
-        ThemePreset.Classic
+        ThemePreset.Classic,
+        false
     )
 
     /** Persists [preset] as the light-mode selection. */
     fun setLightThemePreset(context: Context, preset: ThemePreset) {
+        require(!preset.isDark) { "Light theme preset must not be dark" }
         PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_light_id", preset.value) }
     }
 
     /** Returns the stored dark-mode preset, falling back to [ThemePreset.Dark]. */
     fun getDarkThemePreset(context: Context): ThemePreset = findPreset(
         PreferenceManager.getDefaultSharedPreferences(context).getString("theme_preset_dark_id", null),
-        ThemePreset.Dark
+        ThemePreset.Dark,
+        true
     )
 
     /** Persists [preset] as the dark-mode selection. */
     fun setDarkThemePreset(context: Context, preset: ThemePreset) {
+        require(preset.isDark) { "Dark theme preset must be dark" }
         PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_dark_id", preset.value) }
     }
 
@@ -243,9 +252,14 @@ object ThemeUtil {
     }
 
     fun updateThemes() {
+        val appCompatWillRecreate = activities.firstOrNull()?.let {
+            isThemePresetsEnabled(it) &&
+                    AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        } ?: false
+
         activities.forEach {
             updateTheme(it)
-            it.recreate()
+            if (!appCompatWillRecreate) it.recreate()
         }
     }
 
@@ -257,6 +271,9 @@ object ThemeUtil {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
 
         if (isThemePresetsEnabled(activity)) {
+            if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
             applyThemePreset(activity)
         } else {
             //update accent

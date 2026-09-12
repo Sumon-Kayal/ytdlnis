@@ -51,7 +51,7 @@
         <item name="colorOnPrimary">#000000</item>
         <item name="colorSurface">#343944</item>
         <item name="colorOnSurface">#e5e5e5</item>
-        <item name="colorOnSurfaceVariant">#444444</item>
+        <item name="colorOnSurfaceVariant">#c9cacb</item>
     </style>
 
     <style name="ThemePreset.Rena" parent="BaseTheme">

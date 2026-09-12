@@ -30,8 +30,16 @@ import com.google.android.material.R as MaterialR
 class ThemePresetAdapter(
     private val host: SettingHost?,
     private val mode: Mode,
-    private val onChosen: ((ThemeUtil.ThemePreset) -> Unit)? = null
+    private val onChosen: ((ThemeUtil.ThemePreset) -> Unit)? = null,
+    chooseDarkPreset: Boolean? = null
 ) : RecyclerView.Adapter<ThemePresetAdapter.ThemePresetViewHolder>() {
+
+    private val presets = when (mode) {
+        Mode.APPLY -> ThemeUtil.availableThemePresets
+        Mode.CHOOSE -> ThemeUtil.availableThemePresets.filter {
+            it.isDark == requireNotNull(chooseDarkPreset)
+        }
+    }
 
     enum class Mode { APPLY, CHOOSE }
 
@@ -44,14 +52,14 @@ class ThemePresetAdapter(
         return ThemePresetViewHolder(binding)
     }
 
-    override fun getItemCount() = ThemeUtil.availableThemePresets.size
+    override fun getItemCount() = presets.size
 
     /**
      * Binds a preset preview and handles selection according to [mode]. Apply mode persists and
      * applies the preset when a host is available, while choose mode only passes it to [onChosen].
      */
     override fun onBindViewHolder(holder: ThemePresetViewHolder, position: Int) {
-        val preset = ThemeUtil.availableThemePresets[position]
+        val preset = presets[position]
         val context = holder.binding.root.context
         val themedContext = ContextThemeWrapper(context, preset.styleResource)
 
