@@ -381,24 +381,29 @@ object GeneralSettingsModule : SettingModule {
                         renderSlot(lightCard, lightName, stagedLight)
                         renderSlot(darkCard, darkName, stagedDark)
 
-                        fun openPicker(onPicked: (ThemeUtil.ThemePreset) -> Unit) {
+                        fun openPicker(isDark: Boolean, onPicked: (ThemeUtil.ThemePreset) -> Unit) {
                             val bottomSheet = BottomSheetDialog(host.getHostContext())
                             bottomSheet.requestWindowFeature(Window.FEATURE_NO_TITLE)
                             bottomSheet.setContentView(R.layout.generic_list)
                             val recycler = bottomSheet.findViewById<RecyclerView>(R.id.download_recyclerview)!!
                             recycler.layoutManager = GridLayoutManager(context, 2)
-                            recycler.adapter = ThemePresetAdapter(null, ThemePresetAdapter.Mode.CHOOSE) { chosen ->
-                                onPicked(chosen)
-                                bottomSheet.dismiss()
-                            }
+                            recycler.adapter = ThemePresetAdapter(
+                                null,
+                                ThemePresetAdapter.Mode.CHOOSE,
+                                onChosen = { chosen ->
+                                    onPicked(chosen)
+                                    bottomSheet.dismiss()
+                                },
+                                chooseDarkPreset = isDark
+                            )
                             bottomSheet.show()
                         }
 
                         lightCard.setOnClickListener {
-                            openPicker { chosen -> stagedLight = chosen; renderSlot(lightCard, lightName, stagedLight) }
+                            openPicker(false) { chosen -> stagedLight = chosen; renderSlot(lightCard, lightName, stagedLight) }
                         }
                         darkCard.setOnClickListener {
-                            openPicker { chosen -> stagedDark = chosen; renderSlot(darkCard, darkName, stagedDark) }
+                            openPicker(true) { chosen -> stagedDark = chosen; renderSlot(darkCard, darkName, stagedDark) }
                         }
 
                         MaterialAlertDialogBuilder(host.getHostContext())
