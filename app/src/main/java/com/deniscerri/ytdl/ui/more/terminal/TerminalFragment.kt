@@ -67,6 +67,11 @@ class TerminalFragment : Fragment() {
     private lateinit var session : TerminalSession
     private var sessionId: String? = null
 
+    private fun terminalZoom(): Int {
+        val zoom = sharedPreferences.getFloat("terminal_text_zoom", 35f)
+        return if (zoom.isFinite()) zoom.coerceIn(10f, 37f).toInt() else 35
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -128,11 +133,11 @@ class TerminalFragment : Fragment() {
         slider?.apply {
             valueFrom = 10f
             valueTo = 37f
-            value = sharedPreferences.getFloat("terminal_zoom", 35f)
+            value = terminalZoom().toFloat()
 
             addOnChangeListener { _, value, _ ->
                 terminalView.setTextSize(value.toInt())
-                sharedPreferences.edit { putFloat("terminal_zoom", value) }
+                sharedPreferences.edit { putFloat("terminal_text_zoom", value) }
             }
         }
 
@@ -289,42 +294,41 @@ class TerminalFragment : Fragment() {
 
         terminalView.doOnLayout { view ->
             if (!isAdded) return@doOnLayout
-
             val termView = view as TerminalView
 
-            termView.setTextSize(
-                sharedPreferences.getFloat("terminal_zoom", 35f).toInt()
-            )
-            termView.setTypeface(TerminalUtils.typeface)
+            termView.post {
+                termView.setTextSize(terminalZoom())
 
-            termView.setTerminalViewClient(client)
-            termView.attachSession(session)
+                termView.setTypeface(TerminalUtils.typeface)
+                termView.setTerminalViewClient(client)
+                termView.attachSession(session)
 
-            termView.requestFocus()
+                termView.requestFocus()
 
-            val color = TerminalUtils.getViewColor(requireContext())
-            val bgColor = TerminalUtils.getBackgroundColor(requireContext())
-            termView.mEmulator?.mColors?.mCurrentColors?.apply {
-                set(256, color)
-                set(257, bgColor)
-                set(258, color)
-            }
-
-            terminalViewModel.virtualKeysView?.apply {
-                virtualKeysViewClient = terminalViewModel.terminalView?.mTermSession?.let {
-                    VirtualKeysListener(
-                        it
-                    )
+                val color = TerminalUtils.getViewColor(requireContext())
+                val bgColor = TerminalUtils.getBackgroundColor(requireContext())
+                termView.mEmulator?.mColors?.mCurrentColors?.apply {
+                    set(256, color)
+                    set(257, bgColor)
+                    set(258, color)
                 }
-                buttonTextColor = TerminalUtils.getViewColor(requireContext())
-                reload(VirtualKeysInfo(virtualKeys, "", VirtualKeysConstants.CONTROL_CHARS_ALIASES))
-            }
 
-            sessionShareURL?.apply {
-                CoroutineScope(Dispatchers.IO).launch {
-                    delay(500)
-                    withContext(Dispatchers.Main) {
-                        session.write("yt-dlp \"$sessionShareURL\"")
+                terminalViewModel.virtualKeysView?.apply {
+                    virtualKeysViewClient = terminalViewModel.terminalView?.mTermSession?.let {
+                        VirtualKeysListener(
+                            it
+                        )
+                    }
+                    buttonTextColor = TerminalUtils.getViewColor(requireContext())
+                    reload(VirtualKeysInfo(virtualKeys, "", VirtualKeysConstants.CONTROL_CHARS_ALIASES))
+                }
+
+                sessionShareURL?.apply {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        delay(500)
+                        withContext(Dispatchers.Main) {
+                            session.write("yt-dlp \"$sessionShareURL\"")
+                        }
                     }
                 }
             }
