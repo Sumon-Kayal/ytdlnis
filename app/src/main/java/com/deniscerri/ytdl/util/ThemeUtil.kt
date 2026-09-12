@@ -238,13 +238,22 @@ object ThemeUtil {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
 
         if (isThemePresetsEnabled(activity)) {
+            val nightMode = when (getThemePresetMode(activity)) {
+                ThemePresetMode.AUTO_LIGHT_DARK -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                ThemePresetMode.CONCRETE -> if (getConcreteThemePreset(activity).isDark) {
+                    AppCompatDelegate.MODE_NIGHT_YES
+                } else {
+                    AppCompatDelegate.MODE_NIGHT_NO
+                }
+            }
+            AppCompatDelegate.setDefaultNightMode(nightMode)
             applyThemePreset(activity)
         } else {
             //update accent
             when (sharedPreferences.getString("theme_accent","blue")) {
                 "Default" -> {
-                    DynamicColors.applyToActivityIfAvailable(activity)
                     activity.setTheme(R.style.BaseTheme)
+                    DynamicColors.applyToActivityIfAvailable(activity)
                 }
                 "blue" -> activity.setTheme(R.style.Theme_Blue)
                 "red" -> activity.setTheme(R.style.Theme_Red)
