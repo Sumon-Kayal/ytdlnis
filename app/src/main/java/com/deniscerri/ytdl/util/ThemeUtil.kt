@@ -193,20 +193,17 @@ object ThemeUtil {
         ThemePreset.Classic
     )
 
+    fun setLightThemePreset(context: Context, preset: ThemePreset) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_light_id", preset.value) }
+    }
+
     fun getDarkThemePreset(context: Context): ThemePreset = findPreset(
         PreferenceManager.getDefaultSharedPreferences(context).getString("theme_preset_dark_id", null),
         ThemePreset.Dark
     )
 
-    /**
-     * Writes both slots in a single Editor transaction so a process death
-     * mid-save can't persist one side of the pair without the other.
-     */
-    fun setLightAndDarkThemePresets(context: Context, light: ThemePreset, dark: ThemePreset) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit {
-            putString("theme_preset_light_id", light.value)
-            putString("theme_preset_dark_id", dark.value)
-        }
+    fun setDarkThemePreset(context: Context, preset: ThemePreset) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_dark_id", preset.value) }
     }
 
     private fun applyThemePreset(activity: Activity) {
@@ -241,22 +238,13 @@ object ThemeUtil {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
 
         if (isThemePresetsEnabled(activity)) {
-            val nightMode = when (getThemePresetMode(activity)) {
-                ThemePresetMode.AUTO_LIGHT_DARK -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                ThemePresetMode.CONCRETE -> if (getConcreteThemePreset(activity).isDark) {
-                    AppCompatDelegate.MODE_NIGHT_YES
-                } else {
-                    AppCompatDelegate.MODE_NIGHT_NO
-                }
-            }
-            AppCompatDelegate.setDefaultNightMode(nightMode)
             applyThemePreset(activity)
         } else {
             //update accent
             when (sharedPreferences.getString("theme_accent","blue")) {
                 "Default" -> {
-                    activity.setTheme(R.style.BaseTheme)
                     DynamicColors.applyToActivityIfAvailable(activity)
+                    activity.setTheme(R.style.BaseTheme)
                 }
                 "blue" -> activity.setTheme(R.style.Theme_Blue)
                 "red" -> activity.setTheme(R.style.Theme_Red)
@@ -294,7 +282,7 @@ object ThemeUtil {
     fun getThemeColor(context: Context, colorCode: Int): Int {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val accent = sharedPreferences.getString("theme_accent", "blue")
-        return if (accent == "blue" && !isThemePresetsEnabled(context)){
+        return if (accent == "blue"){
             "d43c3b".toInt(16)
         }else{
             val value = TypedValue()

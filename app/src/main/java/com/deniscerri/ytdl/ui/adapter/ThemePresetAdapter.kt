@@ -30,7 +30,6 @@ import com.google.android.material.R as MaterialR
 class ThemePresetAdapter(
     private val host: SettingHost?,
     private val mode: Mode,
-    private val presets: List<ThemeUtil.ThemePreset> = ThemeUtil.availableThemePresets,
     private val onChosen: ((ThemeUtil.ThemePreset) -> Unit)? = null
 ) : RecyclerView.Adapter<ThemePresetAdapter.ThemePresetViewHolder>() {
 
@@ -45,10 +44,10 @@ class ThemePresetAdapter(
         return ThemePresetViewHolder(binding)
     }
 
-    override fun getItemCount() = presets.size
+    override fun getItemCount() = ThemeUtil.availableThemePresets.size
 
     override fun onBindViewHolder(holder: ThemePresetViewHolder, position: Int) {
-        val preset = presets[position]
+        val preset = ThemeUtil.availableThemePresets[position]
         val context = holder.binding.root.context
         val themedContext = ContextThemeWrapper(context, preset.styleResource)
 

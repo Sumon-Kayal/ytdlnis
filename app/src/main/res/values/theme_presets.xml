@@ -51,12 +51,12 @@
         <item name="colorOnPrimary">#000000</item>
         <item name="colorSurface">#343944</item>
         <item name="colorOnSurface">#e5e5e5</item>
-        <item name="colorOnSurfaceVariant">#c9cacb</item>
+        <item name="colorOnSurfaceVariant">#444444</item>
     </style>
 
     <style name="ThemePreset.Rena" parent="BaseTheme">
         <item name="colorPrimary">#e52c5f</item>
-        <item name="colorOnPrimary">#000000</item>
+        <item name="colorOnPrimary">#ffffff</item>
         <item name="colorSurface">#212735</item>
         <item name="colorOnSurface">#f7f4f4</item>
         <item name="colorOnSurfaceVariant">#c9cacb</item>
@@ -80,7 +80,7 @@
 
     <style name="ThemePreset.Pixel" parent="BaseTheme">
         <item name="colorPrimary">#448aff</item>
-        <item name="colorOnPrimary">#000000</item>
+        <item name="colorOnPrimary">#ffffff</item>
         <item name="colorSurface">#ffffff</item>
         <item name="colorOnSurface">#de000000</item>
         <item name="colorOnSurfaceVariant">#de000000</item>
@@ -112,7 +112,7 @@
 
     <style name="ThemePreset.RenaLight" parent="BaseTheme">
         <item name="colorPrimary">#e52c5f</item>
-        <item name="colorOnPrimary">#000000</item>
+        <item name="colorOnPrimary">#ffffff</item>
         <item name="colorSurface">#ffffff</item>
         <item name="colorOnSurface">#444444</item>
         <item name="colorOnSurfaceVariant">#444444</item>

@@ -286,9 +286,6 @@ object GeneralSettingsModule : SettingModule {
                         host.findPref("theme_preset_concrete")?.isVisible = enabled && !autoMode
                         host.findPref("theme_preset_light_dark")?.isVisible = enabled && autoMode
 
-                        preferences.edit(commit = true) {
-                            putBoolean(pref.key, enabled)
-                        }
                         ThemeUtil.updateThemes()
                         host.refreshUI()
                         true
@@ -304,9 +301,6 @@ object GeneralSettingsModule : SettingModule {
                         host.findPref("theme_preset_concrete")?.isVisible = !autoMode
                         host.findPref("theme_preset_light_dark")?.isVisible = autoMode
 
-                        preferences.edit(commit = true) {
-                            putBoolean(pref.key, autoMode)
-                        }
                         ThemeUtil.updateThemes()
                         host.refreshUI()
                         true
@@ -379,16 +373,13 @@ object GeneralSettingsModule : SettingModule {
                         renderSlot(lightCard, lightName, stagedLight)
                         renderSlot(darkCard, darkName, stagedDark)
 
-                        fun openPicker(
-                            presets: List<ThemeUtil.ThemePreset>,
-                            onPicked: (ThemeUtil.ThemePreset) -> Unit
-                        ) {
+                        fun openPicker(onPicked: (ThemeUtil.ThemePreset) -> Unit) {
                             val bottomSheet = BottomSheetDialog(host.getHostContext())
                             bottomSheet.requestWindowFeature(Window.FEATURE_NO_TITLE)
                             bottomSheet.setContentView(R.layout.generic_list)
                             val recycler = bottomSheet.findViewById<RecyclerView>(R.id.download_recyclerview)!!
                             recycler.layoutManager = GridLayoutManager(context, 2)
-                            recycler.adapter = ThemePresetAdapter(null, ThemePresetAdapter.Mode.CHOOSE, presets) { chosen ->
+                            recycler.adapter = ThemePresetAdapter(null, ThemePresetAdapter.Mode.CHOOSE) { chosen ->
                                 onPicked(chosen)
                                 bottomSheet.dismiss()
                             }
@@ -396,23 +387,18 @@ object GeneralSettingsModule : SettingModule {
                         }
 
                         lightCard.setOnClickListener {
-                            openPicker(ThemeUtil.availableThemePresets.filter { !it.isDark }) { chosen ->
-                                stagedLight = chosen
-                                renderSlot(lightCard, lightName, stagedLight)
-                            }
+                            openPicker { chosen -> stagedLight = chosen; renderSlot(lightCard, lightName, stagedLight) }
                         }
                         darkCard.setOnClickListener {
-                            openPicker(ThemeUtil.availableThemePresets.filter { it.isDark }) { chosen ->
-                                stagedDark = chosen
-                                renderSlot(darkCard, darkName, stagedDark)
-                            }
+                            openPicker { chosen -> stagedDark = chosen; renderSlot(darkCard, darkName, stagedDark) }
                         }
 
                         MaterialAlertDialogBuilder(host.getHostContext())
                             .setTitle(R.string.theme_preset_choose_title)
                             .setView(binding)
                             .setPositiveButton(R.string.ok) { _, _ ->
-                                ThemeUtil.setLightAndDarkThemePresets(context, stagedLight, stagedDark)
+                                ThemeUtil.setLightThemePreset(context, stagedLight)
+                                ThemeUtil.setDarkThemePreset(context, stagedDark)
                                 updateSummary()
                                 ThemeUtil.updateThemes()
                                 host.refreshUI()
