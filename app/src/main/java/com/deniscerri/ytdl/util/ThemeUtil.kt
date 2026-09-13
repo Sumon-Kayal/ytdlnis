@@ -99,8 +99,8 @@ object ThemeUtil {
         //update accent
         when (sharedPreferences.getString("theme_accent","blue")) {
             "Default" -> {
-                DynamicColors.applyToActivityIfAvailable(activity)
                 activity.setTheme(R.style.BaseTheme)
+                DynamicColors.applyToActivityIfAvailable(activity)
             }
             "blue" -> activity.setTheme(R.style.Theme_Blue)
             "red" -> activity.setTheme(R.style.Theme_Red)

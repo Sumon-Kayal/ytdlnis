@@ -34,7 +34,6 @@
             android:icon="@drawable/baseline_color_lens_24"
             app:defaultValue="blue"
             app:key="theme_accent"
-            app:summary="Blue"
             app:title="@string/accents" />
 
         <SwitchPreferenceCompat
