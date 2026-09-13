@@ -412,8 +412,7 @@ object GeneralSettingsModule : SettingModule {
                             .setTitle(R.string.theme_preset_choose_title)
                             .setView(binding)
                             .setPositiveButton(R.string.ok) { _, _ ->
-                                ThemeUtil.setLightThemePreset(context, stagedLight)
-                                ThemeUtil.setDarkThemePreset(context, stagedDark)
+                                ThemeUtil.setLightAndDarkThemePresets(context, stagedLight, stagedDark)
                                 updateSummary()
                                 ThemeUtil.updateThemes()
                                 host.refreshUI()

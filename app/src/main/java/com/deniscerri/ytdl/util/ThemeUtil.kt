@@ -193,17 +193,20 @@ object ThemeUtil {
         ThemePreset.Classic
     )
 
-    fun setLightThemePreset(context: Context, preset: ThemePreset) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_light_id", preset.value) }
-    }
-
     fun getDarkThemePreset(context: Context): ThemePreset = findPreset(
         PreferenceManager.getDefaultSharedPreferences(context).getString("theme_preset_dark_id", null),
         ThemePreset.Dark
     )
 
-    fun setDarkThemePreset(context: Context, preset: ThemePreset) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit { putString("theme_preset_dark_id", preset.value) }
+    /**
+     * Writes both slots in a single Editor transaction so a process death
+     * mid-save can't persist one side of the pair without the other.
+     */
+    fun setLightAndDarkThemePresets(context: Context, light: ThemePreset, dark: ThemePreset) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit {
+            putString("theme_preset_light_id", light.value)
+            putString("theme_preset_dark_id", dark.value)
+        }
     }
 
     private fun applyThemePreset(activity: Activity) {
