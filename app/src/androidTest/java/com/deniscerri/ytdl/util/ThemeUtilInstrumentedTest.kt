@@ -1,5 +1,6 @@
 package com.deniscerri.ytdl.util
 
+import android.app.Activity
 import android.graphics.Color
 import android.util.TypedValue
 import androidx.appcompat.app.AppCompatDelegate
@@ -55,6 +56,27 @@ class ThemeUtilInstrumentedTest {
     }
 
     @Test
+    fun updateTheme_automaticPresetUsesDarkPresetInNightMode() {
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+            .putBoolean("use_theme_presets", true)
+            .putBoolean("theme_preset_auto_mode", true)
+            .putString("theme_preset_light_id", ThemeUtil.ThemePreset.Classic.value)
+            .putString("theme_preset_dark_id", ThemeUtil.ThemePreset.Dark.value)
+            .commit()
+
+        ActivityScenario.launch(ThemeUtilDarkTestActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                ThemeUtil.updateTheme(activity)
+
+                assertThat(AppCompatDelegate.getDefaultNightMode())
+                    .isEqualTo(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                assertThat(activity.themeColor(MaterialR.attr.colorSurface))
+                    .isEqualTo(Color.parseColor("#131313"))
+            }
+        }
+    }
+
+    @Test
     fun updateTheme_darkConcretePresetEnablesNightModeAndAppliesPreset() {
         PreferenceManager.getDefaultSharedPreferences(context).edit()
             .putBoolean("use_theme_presets", true)
@@ -76,7 +98,7 @@ class ThemeUtilInstrumentedTest {
     }
 }
 
-private fun ThemeUtilTestActivity.themeColor(attribute: Int): Int {
+private fun Activity.themeColor(attribute: Int): Int {
     val value = TypedValue()
     theme.resolveAttribute(attribute, value, true)
     return value.data

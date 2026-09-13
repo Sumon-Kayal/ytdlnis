@@ -4,5 +4,8 @@
         <activity
             android:name=".util.ThemeUtilTestActivity"
             android:exported="false" />
+        <activity
+            android:name=".util.ThemeUtilDarkTestActivity"
+            android:exported="false" />
     </application>
 </manifest>
