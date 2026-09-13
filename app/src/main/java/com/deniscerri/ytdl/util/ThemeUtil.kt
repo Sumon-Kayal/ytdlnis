@@ -294,7 +294,7 @@ object ThemeUtil {
     fun getThemeColor(context: Context, colorCode: Int): Int {
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val accent = sharedPreferences.getString("theme_accent", "blue")
-        return if (accent == "blue"){
+        return if (accent == "blue" && !isThemePresetsEnabled(context)){
             "d43c3b".toInt(16)
         }else{
             val value = TypedValue()
