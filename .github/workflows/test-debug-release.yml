@@ -238,5 +238,4 @@ jobs:
           path: |
             ${{ steps.apk.outputs.dir }}/*.apk
             debug-release-notes.md
-            app/debug.keystore
           retention-days: 1
