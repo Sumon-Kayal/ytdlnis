@@ -2,6 +2,18 @@ name: "Test Debug Release"
 
 on:
   workflow_dispatch:
+    inputs:
+      architecture:
+        description: 'APK architecture to upload for manual test builds'
+        required: true
+        type: choice
+        options:
+          - arm64-v8a
+          - armeabi-v7a
+          - x86
+          - x86_64
+          - universal
+        default: universal
   push:
 
 concurrency:
@@ -120,12 +132,13 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleFossDebug --stacktrace --no-daemon
 
-      - name: Locate and rename APKs
+      - name: Locate and rename APK
         id: apk
         shell: bash
         env:
           VERSION: ${{ steps.changelog.outputs.version }}
           RELEASE_DATE: ${{ steps.changelog.outputs.date }}
+          TARGET_ARCH: ${{ github.event_name == 'workflow_dispatch' && inputs.architecture || 'universal' }}
         run: |
           set -euo pipefail
 
@@ -145,6 +158,10 @@ jobs:
           echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
           echo "dir=dist" >> "$GITHUB_OUTPUT"
 
+          SELECTED_APK=""
+          SELECTED_ABI=""
+          SELECTED_FLAVOR=""
+
           for APK_PATH in "${APK_PATHS[@]}"; do
             # Flavor is the directory two levels above the APK file
             # (.../apk/<flavor>/debug/<file>.apk).
@@ -158,8 +175,28 @@ jobs:
               ABI="$(basename "$APK_PATH" .apk)"
             fi
 
-            cp "$APK_PATH" "dist/YTDLnis-debug-v${VERSION}-${RELEASE_DATE}-${SHORT_SHA}-${FLAVOR}-${ABI}.apk"
+            if [[ "$ABI" == "$TARGET_ARCH" ]]; then
+              SELECTED_APK="$APK_PATH"
+              SELECTED_ABI="$ABI"
+              SELECTED_FLAVOR="$FLAVOR"
+              break
+            fi
           done
+
+          if [[ -z "$SELECTED_APK" ]]; then
+            echo "::error::No APK found for requested architecture: $TARGET_ARCH"
+            echo "::error::Produced APKs:"
+            printf '  %s\n' "${APK_PATHS[@]}"
+            exit 1
+          fi
+
+          OUTPUT_APK="dist/YTDLnis-debug-v${VERSION}-${RELEASE_DATE}-${SHORT_SHA}-${SELECTED_FLAVOR}-${SELECTED_ABI}.apk"
+          cp "$SELECTED_APK" "$OUTPUT_APK"
+
+          echo "architecture=$SELECTED_ABI" >> "$GITHUB_OUTPUT"
+          echo "apk=$OUTPUT_APK" >> "$GITHUB_OUTPUT"
+          echo "Selected architecture: $SELECTED_ABI"
+          echo "Selected APK: $SELECTED_APK"
 
       - name: Create internal debug release notes
         id: notes
@@ -170,6 +207,7 @@ jobs:
           CHANGELOG_HEADING: ${{ steps.changelog.outputs.heading }}
           CHANGELOG_SECTION: ${{ steps.changelog.outputs.section }}
           SHORT_SHA: ${{ steps.apk.outputs.short_sha }}
+          ARCHITECTURE: ${{ steps.apk.outputs.architecture }}
         run: |
           cat > debug-release-notes.md <<EOF
           ## YTDLnis internal debug build
@@ -178,6 +216,7 @@ jobs:
           **Changelog date:** ${RELEASE_DATE}
           **Commit:** ${GITHUB_SHA}
           **Short commit:** ${SHORT_SHA}
+          **Architecture:** ${ARCHITECTURE}
 
           This is an **internal testing build** generated manually from the repository.
 
@@ -195,7 +234,7 @@ jobs:
       - name: Upload as workflow artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: YTDLnis-debug-foss-v${{ steps.changelog.outputs.version }}-${{ steps.apk.outputs.short_sha }}
+          name: YTDLnis-debug-foss-v${{ steps.changelog.outputs.version }}-${{ steps.apk.outputs.short_sha }}-${{ steps.apk.outputs.architecture }}
           path: |
             ${{ steps.apk.outputs.dir }}/*.apk
             debug-release-notes.md
