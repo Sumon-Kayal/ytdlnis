@@ -286,6 +286,9 @@ object GeneralSettingsModule : SettingModule {
                         host.findPref("theme_preset_concrete")?.isVisible = enabled && !autoMode
                         host.findPref("theme_preset_light_dark")?.isVisible = enabled && autoMode
 
+                        preferences.edit(commit = true) {
+                            putBoolean(pref.key, enabled)
+                        }
                         ThemeUtil.updateThemes()
                         host.refreshUI()
                         true
@@ -301,6 +304,9 @@ object GeneralSettingsModule : SettingModule {
                         host.findPref("theme_preset_concrete")?.isVisible = !autoMode
                         host.findPref("theme_preset_light_dark")?.isVisible = autoMode
 
+                        preferences.edit(commit = true) {
+                            putBoolean(pref.key, autoMode)
+                        }
                         ThemeUtil.updateThemes()
                         host.refreshUI()
                         true
