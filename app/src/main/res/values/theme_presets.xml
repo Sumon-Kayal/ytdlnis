@@ -73,7 +73,7 @@
         <item name="colorPrimary">#00ff00</item>
         <item name="colorPrimaryDark">#00ff00</item>
         <item name="colorOnPrimary">#000000</item>
-        <item name="colorSurface">#9600ff</item>
+        <item name="colorSurface">#8a00ee</item>
         <item name="colorOnSurface">#00ff00</item>
         <item name="colorOnSurfaceVariant">#00ff00</item>
     </style>
