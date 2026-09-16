@@ -78,6 +78,7 @@ out/
 *.keystore
 *.p12
 *.pem
+keystore.properties
 secrets.properties
 
 # ==============================
