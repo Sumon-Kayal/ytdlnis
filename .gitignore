@@ -80,6 +80,7 @@ out/
 *.pem
 keystore.properties
 secrets.properties
+keystore.properties
 
 # ==============================
 # Test / Coverage
