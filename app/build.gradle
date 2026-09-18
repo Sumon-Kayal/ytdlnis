@@ -24,7 +24,7 @@ if (isBeta) {
 }
 
 android {
-    namespace 'com.deniscerri.ytdl'
+    namespace = 'com.deniscerri.ytdl'
     compileSdk = 36
 
     try {
@@ -50,7 +50,6 @@ android {
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        archivesBaseName = "YTDLnis-$versionName"
         vectorDrawables {
             useSupportLibrary true
         }
