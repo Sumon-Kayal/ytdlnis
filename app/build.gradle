@@ -76,11 +76,11 @@ android {
         }
 
         debug {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            debuggable true
-            signingConfig signingConfigs.debug
-        }
+    minifyEnabled false
+    proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    debuggable true
+    signingConfig signingConfigs.debug
+}
     }
 
     flavorDimensions "version"
