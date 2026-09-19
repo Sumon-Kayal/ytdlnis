@@ -2,7 +2,9 @@ package com.deniscerri.ytdl
 
 import android.app.Application
 import android.content.Intent
+import android.os.Build
 import android.os.Looper
+import android.webkit.WebView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -54,6 +56,22 @@ class App : Application() {
                 db.observeSourcesDao.getAllSources()
                     .filter { it.status == ObserveSourcesRepository.SourceStatus.ACTIVE && !it.hasReachedEnd() }
                     .forEach { scheduler.schedule(it) }         // idempotent: FLAG_UPDATE_CURRENT updates in place
+
+                val useBgUtilPoTokenServer = sharedPreferences.getBoolean("use_bgutils_potoken_generator", false)
+                val bgUtilsMethod = sharedPreferences.getString("bgutils_potoken_method", "server")
+                val requiresServer = useBgUtilPoTokenServer && bgUtilsMethod == "server"
+                if (requiresServer) {
+                    BgUtilsPoTokenGeneratorUtil.acquireServer(this@App)
+                }
+
+                val processName = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    getProcessName()
+                } else {
+                    packageName
+                }
+                if (processName.endsWith(":incognito_process") && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    WebView.setDataDirectorySuffix("incognito_store")
+                }
 
             }catch (e: Exception){
                 Looper.prepare().runCatching {
