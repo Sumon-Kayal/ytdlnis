@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin' version '2.0.1'
-    id 'org.jetbrains.kotlin.android'
     id 'com.google.devtools.ksp'
     id "org.jetbrains.kotlin.plugin.serialization" version "2.3.0"
     id "org.jetbrains.kotlin.plugin.parcelize" version "2.3.0"
@@ -25,7 +24,7 @@ if (isBeta) {
 }
 
 android {
-    namespace 'com.deniscerri.ytdl'
+    namespace = 'com.deniscerri.ytdl'
     compileSdk = 36
 
     try {
@@ -51,7 +50,6 @@ android {
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}${versionExt}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        archivesBaseName = "YTDLnis-$versionName"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -100,20 +98,35 @@ android {
     }
 
 
-    android.applicationVariants.configureEach { variant ->
-        variant.outputs.each { output ->
-            def baseAbiVersionCode = project.abiCodes.get(output.getFilter(com.android.build.OutputFile.ABI))
-            if (baseAbiVersionCode != null) {
-                output.versionCodeOverride = (100 * project.android.defaultConfig.versionCode) + baseAbiVersionCode
-            } else {
-                output.versionCodeOverride = 100 * project.android.defaultConfig.versionCode
-            }
+    androidComponents {
+        onVariants { variant ->
+            variant.outputs.each { output ->
+                def abi = output.filters
+                        .find { it.filterType == com.android.build.api.variant.FilterConfiguration.FilterType.ABI }
+                        ?.identifier ?: "universal"
 
-            def abi = output.getFilter(com.android.build.OutputFile.ABI) ?: "universal"
-            if (variant.flavorName == "github") {
-                output.outputFileName = "YTDLnis-${versionName}-${abi}-${variant.buildType.name}-${variant.flavorName}.apk"
-            } else {
-                output.outputFileName = "YTDLnis-${versionName}-${variant.flavorName}-${abi}-${variant.buildType.name}.apk"
+                def baseAbiVersionCode = project.abiCodes.get(abi)
+                def baseVersionCode = project.android.defaultConfig.versionCode
+
+                if (baseAbiVersionCode != null) {
+                    output.versionCode.set((100 * baseVersionCode) + baseAbiVersionCode)
+                } else {
+                    output.versionCode.set(100 * baseVersionCode)
+                }
+
+                def currentVersionName = output.versionName.get()
+                def flavorName = variant.flavorName
+                def buildTypeName = variant.buildType
+
+                if (flavorName == "github") {
+                    output.outputFileName.set(
+                            "YTDLnis-${currentVersionName}-${abi}-${buildTypeName}.apk"
+                    )
+                } else {
+                    output.outputFileName.set(
+                            "YTDLnis-${currentVersionName}-${flavorName}-${abi}-${buildTypeName}.apk"
+                    )
+                }
             }
         }
     }
@@ -141,9 +154,6 @@ android {
             include 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
             universalApk true
         }
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion "1.10.1"
     }
 
     dependenciesInfo {
@@ -174,21 +184,22 @@ dependencies {
 
     githubImplementation "io.github.deniscerri:ytdlnis_packages.bash:1.0.0"
     githubImplementation "io.github.deniscerri:ytdlnis_packages.python:3.14.6"
-    githubImplementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.17.2"
+    githubImplementation "io.github.junkfood02.youtubedl-android:aria2c:0.18.1"
+    githubImplementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1"
     //githubImplementation "io.github.deniscerri:ytdlnis_packages.deno:2.7.7"
 
     fossImplementation "io.github.deniscerri:ytdlnis_packages.bash:1.0.0"
     fossImplementation "io.github.deniscerri:ytdlnis_packages.python:3.14.6"
-    fossImplementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.17.2"
+    fossImplementation "io.github.junkfood02.youtubedl-android:aria2c:0.18.1"
+    fossImplementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1"
     //fossImplementation "io.github.deniscerri:ytdlnis_packages.deno:2.7.7"
 
     izzyImplementation "io.github.junkfood02.youtubedl-android:library:0.18.1"
-    izzyImplementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.17.2"
+    izzyImplementation "io.github.junkfood02.youtubedl-android:aria2c:0.18.1"
+    izzyImplementation "io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1"
 
-    implementation "io.github.junkfood02.youtubedl-android:aria2c:0.18.1"
-
-    implementation "androidx.appcompat:appcompat:1.7.1"
-    implementation "androidx.constraintlayout:constraintlayout:2.2.1"
+    implementation "androidx.appcompat:appcompat:1.8.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.2.2"
     implementation('com.google.android.material:material:1.10.0') {
         version {
             strictly '1.10.0'
@@ -197,9 +208,9 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation "androidx.navigation:navigation-fragment-ktx:2.9.6"
-    implementation "androidx.navigation:navigation-ui-ktx:2.9.6"
-    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation "androidx.navigation:navigation-fragment-ktx:2.10.1"
+    implementation "androidx.navigation:navigation-ui-ktx:2.10.1"
+    implementation 'androidx.core:core-ktx:1.19.0'
     implementation 'androidx.test.ext:junit-ktx:1.3.0'
     implementation 'androidx.compose.ui:ui-android:1.10.1'
     implementation 'androidx.preference:preference-ktx:1.2.1'
@@ -219,15 +230,15 @@ dependencies {
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.3.0'
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
 
-    implementation "androidx.work:work-runtime-ktx:2.11.0"
+    implementation "androidx.work:work-runtime-ktx:2.11.2"
 
-    implementation "androidx.room:room-runtime:2.8.4"
-    implementation "androidx.room:room-ktx:2.8.4"
-    ksp "androidx.room:room-compiler:2.8.4"
+    implementation "androidx.room:room-runtime:2.8.5"
+    implementation "androidx.room:room-ktx:2.8.5"
+    ksp "androidx.room:room-compiler:2.8.5"
     implementation 'androidx.paging:paging-runtime-ktx:3.3.6'
-    implementation "androidx.room:room-paging:2.8.4"
-    androidTestImplementation "androidx.room:room-testing:2.8.4"
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.10.0'
+    implementation "androidx.room:room-paging:2.8.5"
+    androidTestImplementation "androidx.room:room-testing:2.8.5"
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.11.0'
     implementation "androidx.compose.runtime:runtime:1.10.1"
     androidTestImplementation 'com.google.truth:truth:1.4.5'
 
@@ -239,18 +250,18 @@ dependencies {
 
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0'
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.4'
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.10.0"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.11.0"
     implementation "com.neoutils.highlight:highlight-view:2.3.0"
 
     // For media playback using ExoPlayer
-    implementation("androidx.media3:media3-exoplayer:1.9.0")
+    implementation("androidx.media3:media3-exoplayer:1.11.1")
     // For DASH playback support with ExoPlayer
-    implementation("androidx.media3:media3-exoplayer-dash:1.9.0")
+    implementation("androidx.media3:media3-exoplayer-dash:1.11.1")
     // For HLS playback support with ExoPlayer
-    implementation("androidx.media3:media3-exoplayer-hls:1.9.0")
-    implementation("androidx.media3:media3-ui:1.9.0")
+    implementation("androidx.media3:media3-exoplayer-hls:1.11.1")
+    implementation("androidx.media3:media3-ui:1.11.1")
     // For RTSP playback support with ExoPlayer
-    implementation("androidx.media3:media3-exoplayer-rtsp:1.9.0")
+    implementation("androidx.media3:media3-exoplayer-rtsp:1.11.1")
 
     implementation "com.anggrayudi:storage:1.5.5"
     implementation 'me.zhanghai.android.fastscroll:library:1.3.0'

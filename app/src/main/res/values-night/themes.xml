@@ -19,6 +19,7 @@
     <style name="Theme.Red" parent="BaseTheme">
 
         <item name="colorPrimary">@color/red_md_theme_dark_primary</item>
+        <item name="colorPrimaryDark">@color/red_md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/red_md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/red_md_theme_dark_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/red_md_theme_dark_onPrimaryContainer</item>
@@ -50,6 +51,7 @@
     <style name="Theme.Blue" parent="BaseTheme">
 
         <item name="colorPrimary">@color/blue_md_theme_dark_primary</item>
+        <item name="colorPrimaryDark">@color/blue_md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/blue_md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/blue_md_theme_dark_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/blue_md_theme_dark_onPrimaryContainer</item>
@@ -80,6 +82,7 @@
 
     <style name="Theme.Yellow" parent="BaseTheme">
         <item name="colorPrimary">@color/yellow_md_theme_dark_primary</item>
+        <item name="colorPrimaryDark">@color/yellow_md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/yellow_md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/yellow_md_theme_dark_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/yellow_md_theme_dark_onPrimaryContainer</item>
@@ -112,6 +115,7 @@
     <style name="Theme.Green" parent="BaseTheme">
 
         <item name="colorPrimary">@color/green_md_theme_dark_primary</item>
+        <item name="colorPrimaryDark">@color/green_md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/green_md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/green_md_theme_dark_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/green_md_theme_dark_onPrimaryContainer</item>
@@ -144,6 +148,7 @@
     <style name="Theme.Purple" parent="BaseTheme">
 
         <item name="colorPrimary">@color/purple_md_theme_dark_primary</item>
+        <item name="colorPrimaryDark">@color/purple_md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/purple_md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/purple_md_theme_dark_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/purple_md_theme_dark_onPrimaryContainer</item>
@@ -176,6 +181,7 @@
     <style name="Theme.Monochrome" parent="BaseTheme">
 
         <item name="colorPrimary">@color/monochrome_theme_dark_primary</item>
+        <item name="colorPrimaryDark">@color/monochrome_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/monochrome_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/monochrome_theme_dark_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/monochrome_theme_dark_onPrimaryContainer</item>
@@ -208,6 +214,7 @@
 
     <style name="Theme.Orange" parent="BaseTheme">
         <item name="colorPrimary">@color/orange_md_theme_dark_primary</item>
+        <item name="colorPrimaryDark">@color/orange_md_theme_dark_primary</item>
         <item name="colorOnPrimary">@color/orange_md_theme_dark_onPrimary</item>
         <item name="colorPrimaryContainer">@color/orange_md_theme_dark_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/orange_md_theme_dark_onPrimaryContainer</item>
